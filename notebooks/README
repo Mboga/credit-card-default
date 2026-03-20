@@ -1,0 +1,15 @@
+# set up of local environment
+# EDA, Data Science Analysis
+
+```python3 -m venv card_default
+source card_default/bin/activate```
+
+
+# install the libraries
+
+```pip install -r requirements.txt```
+
+
+# set up of cloud environment
+
+
