@@ -1,0 +1,9 @@
+numpy
+pandas
+scikit-learn
+xgboost
+mlflow
+requests
+plotly[express]
+matplotlib
+nbformat
