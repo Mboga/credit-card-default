@@ -7,3 +7,7 @@ requests
 plotly[express]
 matplotlib
 nbformat
+xlrd
+shap
+seaborn
+python-dotenv
