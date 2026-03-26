@@ -4,6 +4,7 @@ import mlflow.xgboost
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from mlflow.tracking import MlflowClient
 from scripts.processing import extract_features
 
 # Load Configuration
@@ -19,15 +20,15 @@ MODEL_VERSION = int(os.getenv("MODEL_VERSION",3))
 mlflow.set_tracking_uri(f"file://{MLRUNS_DIR}") """
 
 # Docker set up
-load_dotenv()
+
 MLFLOW_URI = os.getenv("MLFLOW_TRACKING_URI","http://mlflow:5000")
 MODEL_NAME = os.getenv("MODEL_NAME","CreditDefault_XGB")
-MODEL_VERSION = os.getenv("MODEL_VERSION","3")
+MODEL_VERSION = os.getenv("MODEL_VERSION","1")
 
 # MLFlow SetUP
 mlflow.set_tracking_uri(MLFLOW_URI)
 
-# APP
+# APPis my current 
 
 app = FastAPI(title="Credit Default Prediction API")
 
@@ -53,14 +54,46 @@ class CreditRequest(BaseModel):
 # Load the model once at startup instead of on every request (much faster).
 model = None
 
+# @app.on_event("startup")
+# def load_model():
+#     global model
+#     try:
+#         model = mlflow.xgboost.load_model(f"models:/{MODEL_NAME}/{MODEL_VERSION}")
+#         print(f" {MODEL_NAME} v{MODEL_VERSION} loaded.")
+#     except Exception as e:
+#         print(f" Model failed to load: {e}")
+# @app.on_event("startup")
+# def load_model():
+#     global model
+#     # Debug: Print exactly where we are looking
+#     uri = f"models:/{MODEL_NAME}/{MODEL_VERSION}"
+#     #print(f"Attempting to load model from: {mlflow.get_tracking_uri()}")
+#     print(f"Connecting to MLflow at: {MLFLOW_URI}")
+#     print(f"attempting to load: {uri}")
+    
+#     try:
+#         model = mlflow.xgboost.load_model(uri)
+#         print(f" SUCCESS: {MODEL_NAME} v{MODEL_VERSION} loaded.")
+#     except Exception as e:
+#         print(f" ERROR: Model failed to load: {e}")
 @app.on_event("startup")
 def load_model():
     global model
+    client=MlflowClient()
+
     try:
-        model = mlflow.xgboost.load_model(f"models:/{MODEL_NAME}/{MODEL_VERSION}")
-        print(f" {MODEL_NAME} v{MODEL_VERSION} loaded.")
+        #get latest version of the model
+        latest_versions = client.get_latest_versions(MODEL_NAME,stages=["None"])
+        latest_v = latest_versions[0].version
+
+        # Debug: Print exactly where we are looking
+        uri = f"models:/{MODEL_NAME}/{latest_v}"
+        print(f"Found latet version:{latest_v}. Loading from: {uri}")
+
+        model = mlflow.xgboost.load_model(uri)
+        print(f" SUCCESS: {MODEL_NAME} v{latest_v} loaded and ready.")
     except Exception as e:
-        print(f" Model failed to load: {e}")
+        print(f" ERROR: Model failed to load: {e}")
 
 # ── 5. ROUTES ─────────────────────────────────────────────────────────────────
 @app.get("/")
