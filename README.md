@@ -13,7 +13,7 @@ To a financial institution, this is an example of risk management.
 
 local host: ```(http://127.0.0.1:8000/)```
 
-live test: Go to : ```http://127.0.0.1:8000/docs```
+live test: Go To : ```http://127.0.0.1:8000/docs```
 
 click POST and paste the following data:
 
@@ -40,8 +40,17 @@ click POST and paste the following data:
 }
 ```
 
-# Docker
+# Docker Microservices
 
+1. FastAPI service (inference : API development and Model Serving)
+2. Prometheus and Grafana (observability)
+3. MLflow Service : Model Governance ( Registry and lifecycle management)
+
+
+``` 
+docker compose up --build
+
+```
 # Cloud Implementation
 
 # Future Improvements
