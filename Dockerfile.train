@@ -1,0 +1,18 @@
+FROM python:3.9-slim
+
+WORKDIR /app
+
+# Install system dependencies for XGBoost/Matplotlib if needed
+RUN apt-get update && apt-get install -y libgomp1 && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the entire project to ensure 'scripts' and 'data' are available
+COPY . .
+
+# Set the Python path so it can find the 'scripts' module
+ENV PYTHONPATH=/app
+
+# Execute the training script as a module
+CMD ["python", "-m", "scripts.train"]
