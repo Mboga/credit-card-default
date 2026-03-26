@@ -7,7 +7,7 @@ from pydantic import BaseModel
 from scripts.processing import extract_features
 
 # Load Configuration
-load_dotenv() #load environment variables from .env
+"""# localsetup # load_dotenv() #load environment variables from .env
 
 #get the variables
 
@@ -16,8 +16,16 @@ MODEL_NAME = os.getenv("MODEL_NAME","CreditDefault_XGB")
 MODEL_VERSION = int(os.getenv("MODEL_VERSION",3))
 
 # MLFLOW SetUP
-mlflow.set_tracking_uri(f"file://{MLRUNS_DIR}")
+mlflow.set_tracking_uri(f"file://{MLRUNS_DIR}") """
 
+# Docker set up
+load_dotenv()
+MLFLOW_URI = os.getenv("MLFLOW_TRACKING_URI","http://mlflow:5000")
+MODEL_NAME = os.getenv("MODEL_NAME","CreditDefault_XGB")
+MODEL_VERSION = os.getenv("MODEL_VERSION","3")
+
+# MLFlow SetUP
+mlflow.set_tracking_uri(MLFLOW_URI)
 
 # APP
 
