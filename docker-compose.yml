@@ -1,32 +1,76 @@
-version: '3.8'
-
 services:
+  db:
+    image: postgres:15
+    container_name: mlflow_db
+    environment:
+      - POSTGRES_DB=mlflow
+      - POSTGRES_USER=mlflow
+      - POSTGRES_PASSWORD=mlflow
+    volumes:
+      - postgres_data:/var/lib/postgresql/data 
+    healthcheck:
+      test: ["CMD", "pg_isready","-U","mlflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   # SERVICE 1: MLflow Tracking Server
   mlflow:
-    image: ghcr.io/mlflow/mlflow:v2.11.3
+    build:
+      context: .
+      dockerfile: Dockerfile.mlflow
     container_name: mlflow_server
+    depends_on:
+      db:
+        condition: service_healthy
     ports:
       - "5000:5000"
+    environment:
+      - MLFLOW_HTTP_ALLOW_ALL_ORIGINS=TRUE
     volumes:
       # maps local folder to folder inside the container
       - ./notebooks/mlruns:/mlflow/mlruns
     command: >
       mlflow server
-      --backend-store-uri sqlite://mlflow/mlruns/mlflow.db
+      --backend-store-uri postgresql://mlflow:mlflow@mlflow_db/mlflow
       --default-artifact-root /mlflow/mlruns
       --host 0.0.0.0
       --port 5000
+      --allowed-hosts "*"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  trainer:
+    build:
+      context: .
+      dockerfile: Dockerfile.train
+    environment:
+      - MLFLOW_TRACKING_URI=http://mlflow:5000
+    volumes:
+      - ./notebooks/mlruns:/mlflow/mlruns
+      - ./data:/app/data
+    depends_on:
+      - mlflow
+      - db
   
   # SERVICE 2: FastAPI Application
   api:
     build: .
     container_name: credit_api
     depends_on:
-      - mlflow
+      mlflow:
+        condition: service_healthy
     ports:
       - "8000:8000"
+    volumes:
+      - ./notebooks/mlruns:/mlflow/mlruns
     environment:
       - MLFLOW_TRACKING_URI=http://mlflow:5000
       - MODEL_NAME=CreditDefault_XGB
-      - MODEL_VERSION=3
-  
+      - MODEL_VERSION=
+volumes:
+    postgres_data:      #persists acrss restarts, survives docker compose down
