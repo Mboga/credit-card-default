@@ -11,3 +11,4 @@ xlrd
 shap
 seaborn
 python-dotenv
+prometheus-fastapi-instrumentator==6.1.0
