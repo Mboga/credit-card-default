@@ -1,3 +1,5 @@
+[![CI Pipeline](https://github.com/Mboga/credit-card-default/actions/workflows/ci.yml/badge.svg)](https://github.com/Mboga/credit-card-default/actions/workflows/ci.yml)
+
 # Credit Default Prediction System
 
 A production-grade ML pipeline for predicting the probability of credit card payment default, designed for real-time inference in financial risk management workflows.
@@ -161,4 +163,6 @@ Grafana dashboards are pre-configured with the following panels:
 
 ## Future Improvements
 
-> *Coming soon.*
+> front-end development
+
+
