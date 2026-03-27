@@ -30,4 +30,4 @@ jobs:
     
     - name: Verify Docker build
       run: |
-        docker-compose build api
+        docker build -t api
