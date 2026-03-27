@@ -6,6 +6,8 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from mlflow.tracking import MlflowClient
 from scripts.processing import extract_features
+from prometheus_fastapi_instrumentator import Instrumentator
+from prometheus_client import Counter, Histogram
 
 # Load Configuration
 """# localsetup # load_dotenv() #load environment variables from .env
@@ -32,6 +34,28 @@ mlflow.set_tracking_uri(MLFLOW_URI)
 
 app = FastAPI(title="Credit Default Prediction API")
 
+#setting up prometheus for monitoring
+Instrumentator().instrument(app).expose(app)
+
+# Define your custom metrics
+PREDICTION_COUNT = Counter(
+    "credit_predictions_total", 
+    "Total number of credit default predictions made"
+)
+
+CREDIT_LIMIT_TRACKER = Histogram(
+    "credit_limit_amount", 
+    "Distribution of credit limits requested",
+    buckets=[1000, 5000, 10000, 50000, 100000, 500000]
+)
+
+
+
+
+# expose the /metrics endpoint
+# @app.on_event("startup")
+# async def expose_metrics():
+#     Instrumentator.expose(app)
 # REQUEST SCHEMA
 
 # Pydantic validates every incoming request against this shape.
@@ -103,7 +127,7 @@ def root():
 
 
 @app.post("/predict")
-def predict(request: CreditRequest):
+async def predict(request: CreditRequest):
     """
     Accepts 23 credit features, returns a default probability and decision.
     Steps: validate → feature engineer → predict → respond.
@@ -112,6 +136,12 @@ def predict(request: CreditRequest):
         raise HTTPException(status_code=503, detail="Model not loaded yet.")
 
     try:
+        # Increment the total counter
+        PREDICTION_COUNT.inc()
+
+        # Track the limit balance using histogram
+        CREDIT_LIMIT_TRACKER.observe(request.LIMIT_BAL)
+        
         # a) Pydantic object → dict → single-row DataFrame
         df_raw = pd.DataFrame([request.model_dump()])
 
