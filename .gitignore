@@ -8,3 +8,6 @@
 /mlruns/
 .env
 /mlartifacts
+/notebooks/exploratory_data_analysis.ipynb
+/notebooks/README
+/notebooks/scratch_inference.ipynb
