@@ -41,16 +41,20 @@ click POST and paste the following data:
 ```
 
 # Docker Microservices
+1. Training Service: Training of the ML model
+2. FastAPI service (inference : API development and Model Serving)
+3. Prometheus and Grafana (observability)
+4. MLflow Service : Model Governance ( Registry and lifecycle management)
 
-1. FastAPI service (inference : API development and Model Serving)
-2. Prometheus and Grafana (observability)
-3. MLflow Service : Model Governance ( Registry and lifecycle management)
+
+- Start all the micro-services: ```docker compose up --build```
+- Train a new version of model: ``` docker-compose run --rm trainer```
+- Check the results: ``` http://localhost:5000```
+- Update the API: ``` docker-compose restart api```
+- Test the API by using the interactive Swagger UI: ``` http://localhost:8000/docs```
 
 
-``` 
-docker compose up --build
 
-```
 # Cloud Implementation
 
 # Future Improvements
