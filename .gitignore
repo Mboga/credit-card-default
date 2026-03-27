@@ -1,0 +1,10 @@
+/card_default
+/data
+*.csv
+*.json
+.DS_Store
+/notebooks/*.png
+/notebooks/mlruns/
+/mlruns/
+.env
+/mlartifacts

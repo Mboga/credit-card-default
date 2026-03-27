@@ -21,7 +21,12 @@ jobs:
 
     - name: Install Dependencies
       run: |
-        pytests tests/
+        python -m pip install --upgrade pip
+        pip install -requirements.txt
+
+    - name: Run Tests
+      run: |
+        python3 -m pytests tests/ -v
     
     - name: Verify Docker build
       run: |
