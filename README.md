@@ -157,7 +157,10 @@ Grafana dashboards are pre-configured with the following panels:
 
 ## Cloud Implementation
 
-> *Coming soon.*
+> 
+
+- Local development (this repo)
+- Cloud deployment on AWS: https://gitlab.com/ml-group2284814/credit-default-prod
 
 ---
 
